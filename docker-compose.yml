@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      args:
+        TORCH_IMAGE: ${TORCH_IMAGE:-pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime}
+    image: sdf-lab:dev
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: ["uvicorn","server:app","--host","0.0.0.0","--port","9000"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+  test:
+    build:
+      context: .
+      args:
+        TORCH_IMAGE: ${TORCH_IMAGE:-pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime}
+    image: sdf-lab:dev
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: ["pytest","-q"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
